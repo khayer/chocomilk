@@ -35,8 +35,6 @@ class Target:
             self.background = cv2.LoadImageM(background)
         else:
             self.background = self.get_background()
-        cv2.imwrite('background.png',self.background)
-
 
     def get_background(self):
         self.capture.set(CV_CAP_PROP_POS_FRAMES,int(self.fps*10))
@@ -44,12 +42,16 @@ class Target:
 
         return background
 
+    def run():
+        self.capture.set(CV_CAP_PROP_POS_FRAMES,int(self.fps*100))
+        for i in range(1,self.length_cali)
+            _.frame = self.capture.read()
+            cv2.imshow('background',frame)
 
 def main():
     """Main entry point for the script."""
     t = Target(sys.argv[1])
-
-
+    t.run
     pass
 
 if __name__ == '__main__':
