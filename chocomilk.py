@@ -125,9 +125,24 @@ class Target:
                 last_x = x
                 last_y = y
 
-            cv2.circle(frame,(last_x,last_y),6,255,5)
+            mask = np.zeros(frame.shape[:2],np.uint8)
 
+            bgdModel = np.zeros((1,65),np.float64)
+            fgdModel = np.zeros((1,65),np.float64)
+
+            rect = (last_x-100,last_x-100,last_y+100,last_y+100)
+            cv2.grabCut(frame,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+
+            mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+            frame = frame*mask2[:,:,np.newaxis]
+
+            #plt.imshow(frame),plt.colorbar(),plt.show()
+            cv2.circle(frame,(last_x,last_y),6,255,5)
             cv2.imshow('dst',frame)
+
+
+
+
             print >> sys.stderr, countours[0]
             print >> sys.stderr, hierarchy[0]
             k = cv2.waitKey(1)
