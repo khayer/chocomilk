@@ -64,8 +64,8 @@ class Target:
 
         bgdModel = np.zeros((1,65),np.float64)
         fgdModel = np.zeros((1,65),np.float64)
-        last_x = self.width/2
-        last_y = self.height/2
+        last_x = int(self.width/2)
+        last_y = int(self.height/2)
 
 
         for i in range(1,self.length_cali):
@@ -106,13 +106,33 @@ class Target:
             corners = cv2.goodFeaturesToTrack(new_test,100,0.05,5)
             corners = np.int0(corners)
 
+            mask = np.zeros(frame.shape[:2],np.uint8)
+
+            bgdModel = np.zeros((1,65),np.float64)
+            fgdModel = np.zeros((1,65),np.float64)
+
+            rect = (last_x-100,last_y-100,last_x+100,last_y+100)
+            #rect = (100,100,200,200)
+            #cv2.grabCut(frame ,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
+
+            #mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
+            #k = frame*mask2[:,:,np.newaxis]
+            mask = np.zeros(frame.shape,np.uint8)
+            mask[rect[1]:rect[3],rect[0]:rect[2]] = frame[rect[1]:rect[3],rect[0]:rect[2]]
+            cv2.rectangle(frame,(rect[0],rect[1]),(rect[2],rect[3]),240)
+            cv2.imshow('mask',mask)
+            #cv2.imshow('b',frame)
             all_x = []
             all_y = []
 
             for i in corners:
 
                 x,y = i.ravel()
-                if not is_within(x,last_x,100) and not is_within(y,last_y,100) :
+                if not is_within(x,last_x,100) or not is_within(y,last_y,100) :
+                    continue
+                if not (x > rect[0] and x<rect[2]) or not (y > rect[1] and y<rect[3]) :
+                    print >> sys.stderr, x
+                    print >> sys.stderr, y
                     continue
                 cv2.circle(frame,(x,y),3,(200,200),-1)
                 all_x.append(x)
@@ -121,30 +141,16 @@ class Target:
             x = int(np.median(all_x))
             y = int(np.median(all_y))
 
-            if is_within(x,last_x,100) and is_within(y,last_y,100):
+            if (x > rect[0] and x<rect[2]) and (y > rect[1] and y<rect[3]):
                 last_x = x
                 last_y = y
-
-            mask = np.zeros(frame.shape[:2],np.uint8)
-
-            bgdModel = np.zeros((1,65),np.float64)
-            fgdModel = np.zeros((1,65),np.float64)
-
-            rect = (last_x-100,last_x-100,last_y+100,last_y+100)
-            cv2.grabCut(frame,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
-
-            mask2 = np.where((mask==2)|(mask==0),0,1).astype('uint8')
-            frame = frame*mask2[:,:,np.newaxis]
 
             #plt.imshow(frame),plt.colorbar(),plt.show()
             cv2.circle(frame,(last_x,last_y),6,255,5)
             cv2.imshow('dst',frame)
 
-
-
-
-            print >> sys.stderr, countours[0]
-            print >> sys.stderr, hierarchy[0]
+            #print >> sys.stderr, countours[0]
+            #print >> sys.stderr, hierarchy[0]
             k = cv2.waitKey(1)
         return
 
