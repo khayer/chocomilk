@@ -83,7 +83,7 @@ class Target:
             test = cv2.convertScaleAbs(thresh)
             test2 = cv2.convertScaleAbs(thresh2)
             #difference = cv2.convertScaleAbs(difference)
-            test = cv2.add(test,test2)
+            test = cv2.bitwise_and(test,test2)
             cv2.imshow("test",test)
             fgmask = fgbg.apply(frame)
             fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
@@ -94,8 +94,8 @@ class Target:
             #cv2.imshow("THRESH",thresh)
             element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE ,(10,10))
             #new_test = cv2.dilate(new_test, element, 10)
-            new_test = cv2.erode(new_test,element, 10)
-            new_test = cv2.dilate(new_test,element, 10)
+            #new_test = cv2.erode(new_test,element, 1)
+            #new_test = cv2.dilate(new_test,element, 1)
             countours,hierarchy = cv2.findContours(test,cv2.RETR_LIST,cv2.CHAIN_APPROX_NONE)
             cv2.imshow("test2",new_test)
 
@@ -111,7 +111,7 @@ class Target:
             bgdModel = np.zeros((1,65),np.float64)
             fgdModel = np.zeros((1,65),np.float64)
 
-            rect = (last_x-100,last_y-100,last_x+100,last_y+100)
+            rect = (last_x-125,last_y-125,last_x+125,last_y+125)
             #rect = (100,100,200,200)
             #cv2.grabCut(frame ,mask,rect,bgdModel,fgdModel,5,cv2.GC_INIT_WITH_RECT)
 
@@ -120,6 +120,22 @@ class Target:
             mask = np.zeros(frame.shape,np.uint8)
             mask[rect[1]:rect[3],rect[0]:rect[2]] = frame[rect[1]:rect[3],rect[0]:rect[2]]
             cv2.rectangle(frame,(rect[0],rect[1]),(rect[2],rect[3]),240)
+            background2 = np.zeros(frame.shape,np.uint8)
+            background2[rect[1]:rect[3],rect[0]:rect[2]] = self.background[rect[1]:rect[3],rect[0]:rect[2]]
+            mask = cv2.absdiff(mask, background2)
+            difference  = cv2.absdiff(mask, background2)
+            thresh = cv2.inRange(mask, (40,40,40), (65,65,65))
+            thresh2 = cv2.inRange(difference, (10,10,10), (25,25,25))
+            cv2.imshow("THRESH2",difference)
+            test = cv2.convertScaleAbs(thresh)
+            cv2.imshow('mask1',test)
+            test2 = cv2.convertScaleAbs(thresh2)
+            cv2.imshow('mask2',test2)
+            #difference = cv2.convertScaleAbs(difference)
+            mask = cv2.bitwise_and(test,test2)
+            #mask = test2
+            #mask = cv2.dilate(test2,element, 3)
+
             cv2.imshow('mask',mask)
             #cv2.imshow('b',frame)
             all_x = []
@@ -135,6 +151,33 @@ class Target:
                     print >> sys.stderr, y
                     continue
                 cv2.circle(frame,(x,y),3,(200,200),-1)
+                all_x.append(x)
+                all_y.append(y)
+
+            if all_x:
+                x_med = int(np.median(all_x))
+                y_med = int(np.median(all_y))
+            else:
+                x_med = last_x
+                y_med = last_y
+
+            corners = cv2.goodFeaturesToTrack(mask,100,0.05,5)
+            corners = np.int0(corners)
+
+            all_x = []
+            all_y = []
+
+
+            for i in corners:
+
+                x,y = i.ravel()
+                if not is_within(x,x_med,100) or not is_within(y,y_med,100) :
+                    continue
+                #if not (x > rect[0] and x<rect[2]) or not (y > rect[1] and y<rect[3]) :
+                #    print >> sys.stderr, x
+                #    print >> sys.stderr, y
+                #    continue
+                cv2.circle(frame,(x,y),3,(200,100),-1)
                 all_x.append(x)
                 all_y.append(y)
 
