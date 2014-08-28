@@ -1,7 +1,9 @@
 """Script to evaluate mice experiments."""
 import sys
 import cv2
+import cv2.cv as cv
 import numpy as np
+import report
 
 CV_CAP_PROP_POS_MSEC = 0
 CV_CAP_PROP_POS_FRAMES = 1
@@ -22,9 +24,106 @@ def diffImg(t0, t1, t2):
 def is_within(p1,p2,dis=50):
     return abs(p1-p2) <= dis
 
+def light_on(k):
+    original = k
+    original = cv2.cvtColor(k,cv2.COLOR_BGR2GRAY)
+    retval, image = cv2.threshold(original, 110, 180, cv2.cv.CV_THRESH_BINARY)
+
+    el = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    image = cv2.dilate(image, el, iterations=6)
+
+    cv2.imshow("dilated.png", image)
+
+    contours, hierarchy = cv2.findContours(
+        image,
+        cv2.cv.CV_RETR_LIST,
+        cv2.cv.CV_CHAIN_APPROX_SIMPLE
+    )
+
+    drawing = k
+
+    centers = []
+    radii = []
+    if contours is not None:
+        for contour in contours:
+            area = cv2.contourArea(contour)
+
+            # there is one contour that contains all others, filter it out
+            if area < 2900 or area > 4500:
+                continue
+
+            br = cv2.boundingRect(contour)
+            radii.append(br[2])
+
+            m = cv2.moments(contour)
+            center = (int(m['m10'] / m['m00']), int(m['m01'] / m['m00']))
+            centers.append(center)
+
+        print("There are {} circles".format(len(centers)))
+
+        if not len(centers) == 0 :
+            radius = int(np.average(radii)) + 5
+
+            for center in centers:
+
+                if center[0] > 540 and center[0] < 620 and center[1] > 120 and center[1] < 150:
+                    print center
+
+                    cv2.circle(drawing, center, 3, (255, 0, 0), -1)
+                    cv2.circle(drawing, center, radius, (0, 255, 0), 1)
+                    cv2.imshow("drawing.png", drawing)
+                    cv2.waitKey(50)
+                    #return True
+
+
+    return False
+
+    im = k
+    height, width, depth = im.shape
+    #print height, width, depth
+    thresh = 170
+    imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(imgray,(5,5),0)
+    edges = cv2.Canny(blur,thresh,thresh+50)
+    #thresh2 = cv2.inRange(blur, (100,100), (180,180))
+    #edges = thresh2
+    cv2.imshow('edges',edges)
+    circles = cv2.HoughCircles(edges, cv.CV_HOUGH_GRADIENT, 1, 10, thresh+50,300)
+
+    if circles is not None:
+        for c in circles[0]:
+            cv2.circle(im,(c[0],c[1]),c[2],(255,0,0),2)
+            cv2.imshow('circles',im)
+            cv2.waitKey(10000)
+            print c
+            if c[2] < 30 and c[2] > 10:
+                return True
+    else:
+        return False
+    return False
+    #contours, hierarchy = cv2.findContours(edges,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    #cnt = contours[0]
+    #cv2.drawContours(im,contours,-1,(0,255,0),-1)
+#
+    ##centroid_x = M10/M00 and centroid_y = M01/M00
+    #M = cv2.moments(cnt)
+    #x = int(M['m10']/M['m00'])
+    #y = int(M['m01']/M['m00'])
+    #print x,y
+    #print width/2.0,height/2.0
+    #print width/2-x,height/2-y
+#
+#
+    #cv2.circle(im,(x,y),1,(0,0,255),2)
+    #cv2.putText(im,"center of Sun contour", (x,y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255))
+    #cv2.circle(im,(width/2,height/2),1,(255,0,0),2)
+    #cv2.putText(im,"center of image", (width/2,height/2), cv2.FONT_HERSHEY_SIMPLEX, 1, (255,0,0))
+        #cv2.waitKey(1000)
+    #return True
+
 class Target:
 
-    def __init__(self,video,background=None,xls_sheet=None):
+    def __init__(self,video,csv_file,background=None,xls_sheet=None):
         self.sample_name = video.split("/")[-1]
         self.capture = cv2.VideoCapture(video)
         self.numframes = self.capture.get(CV_CAP_PROP_FRAME_COUNT)
@@ -43,12 +142,38 @@ class Target:
             self.background = cv2.LoadImageM(background)
         else:
             self.background = self.get_background()
+        self.report = report.Report(csv_file).read_csv
+        self.offset = self.get_offset()
+
 
     def get_background(self):
         self.capture.set(CV_CAP_PROP_POS_FRAMES,int(self.fps*10))
         _,background = self.capture.read()
 
         return background
+
+    def get_offset(self):
+        # Find the first house light on event
+        print >> sys.stderr, "Offset ..."
+        self.capture.set(CV_CAP_PROP_POS_FRAMES,0)
+        self.offset = 0
+        while self.offset == 0:
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            k,frame = self.capture.read()
+            difference  = cv2.absdiff(frame, self.background)
+            cv2.imshow(self.sample_name,difference)
+            if light_on(difference):
+                self.offset = self.capture.get(CV_CAP_PROP_POS_MSEC)
+                print >> sys.stderr, ("Offset is %s" % self.offset)
+            k = cv2.waitKey(1)
+            pass
+        exit()
+
 
     def run(self):
         print >> sys.stderr, "Calibration ..."
@@ -199,7 +324,7 @@ class Target:
 
 def main():
     """Main entry point for the script."""
-    t = Target(sys.argv[1])
+    t = Target(sys.argv[1],sys.argv[2])
     t.run()
     pass
 
