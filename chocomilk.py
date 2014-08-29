@@ -75,8 +75,8 @@ def light_on(k):
                     cv2.circle(drawing, center, 3, (255, 0, 0), -1)
                     cv2.circle(drawing, center, radius, (0, 255, 0), 1)
                     cv2.imshow("drawing.png", drawing)
-                    cv2.waitKey(50)
-                    #return True
+                    cv2.waitKey(1000)
+                    return True
 
 
     return False
