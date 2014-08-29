@@ -30,6 +30,7 @@ def light_on(k):
     retval, image = cv2.threshold(original, 110, 180, cv2.cv.CV_THRESH_BINARY)
 
     el = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    image = cv2.erode(image, el, iterations=2)
     image = cv2.dilate(image, el, iterations=6)
 
     cv2.imshow("dilated.png", image)
@@ -49,7 +50,7 @@ def light_on(k):
             area = cv2.contourArea(contour)
 
             # there is one contour that contains all others, filter it out
-            if area < 2900 or area > 4500:
+            if area < 1500 or area > 4500:
                 continue
 
             br = cv2.boundingRect(contour)
@@ -65,8 +66,10 @@ def light_on(k):
             radius = int(np.average(radii)) + 5
 
             for center in centers:
-
-                if center[0] > 540 and center[0] < 620 and center[1] > 120 and center[1] < 150:
+                # (603, 152)
+                #wrong: (597, 141)
+                #right: (591, 137)
+                if center[0] > 560 and center[0] < 620 and center[1] > 120 and center[1] < 160:
                     print center
 
                     cv2.circle(drawing, center, 3, (255, 0, 0), -1)
