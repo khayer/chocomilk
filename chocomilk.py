@@ -4,6 +4,8 @@ import cv2
 import cv2.cv as cv
 import numpy as np
 import report
+import moviepy.editor as me
+import re
 
 CV_CAP_PROP_POS_MSEC = 0
 CV_CAP_PROP_POS_FRAMES = 1
@@ -60,7 +62,7 @@ def light_on(k):
             center = (int(m['m10'] / m['m00']), int(m['m01'] / m['m00']))
             centers.append(center)
 
-        print("There are {} circles".format(len(centers)))
+        #print("There are {} circles".format(len(centers)))
 
         if not len(centers) == 0 :
             radius = int(np.average(radii)) + 5
@@ -145,8 +147,14 @@ class Target:
             self.background = cv2.LoadImageM(background)
         else:
             self.background = self.get_background()
-        self.report = report.Report(csv_file).read_csv
-        self.offset = self.get_offset()
+        self.clip = me.VideoFileClip(video)
+        #clip = (VideoFileClip("./frozen_trailer.mp4")
+        #    .subclip((1,22.65),(1,23.2))
+        #    .resize(0.3))
+        self.report = report.Report(csv_file)
+        self.report.read_csv()
+        self.offset = 0
+        self.get_offset()
 
 
     def get_background(self):
@@ -168,6 +176,7 @@ class Target:
             k,frame = self.capture.read()
             k,frame = self.capture.read()
             k,frame = self.capture.read()
+            k,frame = self.capture.read()
             difference  = cv2.absdiff(frame, self.background)
             cv2.imshow(self.sample_name,difference)
             if light_on(difference):
@@ -175,8 +184,31 @@ class Target:
                 print >> sys.stderr, ("Offset is %s" % self.offset)
             k = cv2.waitKey(1)
             pass
-        exit()
+        return
 
+    def run2(self, evnt_name,item_name):
+        print >> sys.stderr, ("Finding evnt_name: %s with item: %s" % (evnt_name, item_name))
+        #print >> sys.stderr, self.report.events
+        print >> sys.stderr, self.report.events[evnt_name][item_name]
+        times = self.report.events[evnt_name][item_name]
+        offset_in_seconds = self.offset/1000.0
+        null_event = self.report.events["Output On Event"]["HouseLight #1"][0]
+        print >> sys.stderr, null_event
+        for t in times:
+            time_in_video = (t - null_event)/1.2
+            start = (offset_in_seconds + time_in_video - 2.0)
+            stop = (offset_in_seconds + time_in_video + 1.0)
+            name = "%s_%s_%f.gif" % (evnt_name,item_name,t)
+            name = re.sub(r'\s', '_', name)
+            print >> sys.stderr, start
+            print >> sys.stderr, stop
+            start = (int(np.floor(start/60)),start%60)
+            stop = (int(np.floor(stop/60)),stop%60)
+            print >> sys.stderr, start
+            print >> sys.stderr, stop
+            short_clip = self.clip.subclip(start,stop)
+
+            short_clip.write_gif(name,fps=int(self.fps/2))
 
     def run(self):
         print >> sys.stderr, "Calibration ..."
@@ -328,7 +360,10 @@ class Target:
 def main():
     """Main entry point for the script."""
     t = Target(sys.argv[1],sys.argv[2])
-    t.run()
+    evnt_name = sys.argv[3]
+    item_name = sys.argv[4]
+    t.run2(evnt_name, item_name)
+    #t.run()
     pass
 
 if __name__ == '__main__':
