@@ -52,7 +52,7 @@ def light_on(k):
             area = cv2.contourArea(contour)
 
             # there is one contour that contains all others, filter it out
-            if area < 1500 or area > 4500:
+            if area < 800 or area > 2500:
                 continue
 
             br = cv2.boundingRect(contour)
@@ -61,6 +61,8 @@ def light_on(k):
             m = cv2.moments(contour)
             center = (int(m['m10'] / m['m00']), int(m['m01'] / m['m00']))
             centers.append(center)
+            print center
+
 
         #print("There are {} circles".format(len(centers)))
 
@@ -71,41 +73,44 @@ def light_on(k):
                 # (603, 152)
                 #wrong: (597, 141)
                 #right: (591, 137)
-                if center[0] > 560 and center[0] < 620 and center[1] > 120 and center[1] < 160:
+                if center[0] > 589 and center[0] < 640 and center[1] > 120 and center[1] < 180:
+                    print "HERE: "
                     print center
 
                     cv2.circle(drawing, center, 3, (255, 0, 0), -1)
                     cv2.circle(drawing, center, radius, (0, 255, 0), 1)
                     cv2.imshow("drawing.png", drawing)
+                    cv2.imwrite('offset.png',drawing)
                     cv2.waitKey(1000)
                     return True
 
 
     return False
 
-    im = k
-    height, width, depth = im.shape
-    #print height, width, depth
-    thresh = 170
-    imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(imgray,(5,5),0)
-    edges = cv2.Canny(blur,thresh,thresh+50)
-    #thresh2 = cv2.inRange(blur, (100,100), (180,180))
-    #edges = thresh2
-    cv2.imshow('edges',edges)
-    circles = cv2.HoughCircles(edges, cv.CV_HOUGH_GRADIENT, 1, 10, thresh+50,300)
-
-    if circles is not None:
-        for c in circles[0]:
-            cv2.circle(im,(c[0],c[1]),c[2],(255,0,0),2)
-            cv2.imshow('circles',im)
-            cv2.waitKey(10000)
-            print c
-            if c[2] < 30 and c[2] > 10:
-                return True
-    else:
-        return False
-    return False
+    #im = k
+    #height, width, depth = im.shape
+    ##print height, width, depth
+    #thresh = 170
+    #imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+    #blur = cv2.GaussianBlur(imgray,(5,5),0)
+    #edges = cv2.Canny(blur,thresh,thresh+50)
+    ##thresh2 = cv2.inRange(blur, (100,100), (180,180))
+    ##edges = thresh2
+    #cv2.imshow('edges',edges)
+    #circles = cv2.HoughCircles(edges, cv.CV_HOUGH_GRADIENT, 1, 10, thresh+50,300)
+#
+    #if circles is not None:
+    #    for c in circles[0]:
+    #        cv2.circle(im,(c[0],c[1]),c[2],(255,0,0),2)
+    #        cv2.imshow('circles',im)
+    #        cv2.imwrite('offset.png',im)
+    #        cv2.waitKey(1000)
+    #        print c
+    #        if c[2] < 30 and c[2] > 10:
+    #            return True
+    #else:
+    #    return False
+    #return False
     #contours, hierarchy = cv2.findContours(edges,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     #cnt = contours[0]
     #cv2.drawContours(im,contours,-1,(0,255,0),-1)
@@ -171,12 +176,6 @@ class Target:
         while self.offset == 0:
             k,frame = self.capture.read()
             k,frame = self.capture.read()
-            k,frame = self.capture.read()
-            k,frame = self.capture.read()
-            k,frame = self.capture.read()
-            k,frame = self.capture.read()
-            k,frame = self.capture.read()
-            k,frame = self.capture.read()
             difference  = cv2.absdiff(frame, self.background)
             cv2.imshow(self.sample_name,difference)
             if light_on(difference):
@@ -196,7 +195,7 @@ class Target:
         print >> sys.stderr, null_event
         for t in times:
             time_in_video = (t - null_event)/1.2
-            start = (offset_in_seconds + time_in_video - 2.0)
+            start = (offset_in_seconds + time_in_video - 3.0)
             stop = (offset_in_seconds + time_in_video + 1.0)
             name = "%s_%s_%f.gif" % (evnt_name,item_name,t)
             name = re.sub(r'\s', '_', name)
