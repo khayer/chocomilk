@@ -9,6 +9,7 @@ class Report:
   def __init__(self, report_file):
     self.report_file = report_file
     self.events = {}
+    self.events_by_time = {}
 
 
   def read_csv(self):
@@ -24,6 +25,13 @@ class Report:
         if not row[h.index("Item_Name")] in self.events[row[h.index("Evnt_Name")]]:
           self.events[row[h.index("Evnt_Name")]][row[h.index("Item_Name")]] = []
         self.events[row[h.index("Evnt_Name")]][row[h.index("Item_Name")]].append(float(row[h.index("Evnt_Time")]))
+        if not float(row[h.index("Evnt_Time")]) in self.events_by_time:
+          self.events_by_time[float(row[h.index("Evnt_Time")])] = []
+        self.events_by_time[float(row[h.index("Evnt_Time")])].append([row[h.index("Evnt_Name")],row[h.index("Item_Name")]])
+    return
+
+  def write(self):
+    print(self.report_file)
     return
 
 
