@@ -80,11 +80,11 @@ def main():
         i = i +1
       #t.run()
       x =np.around(x,2)
-      plotter.plot_my_data(data,x,correct_n,"{0}trial_{1}".format(cor, num_trial))
+      plotter.plot_my_data(data,x,correct_n,"{0}_{1}trial".format(num_trial, cor),sorted(subset)[0])
       print >> sys.stderr, x
       print >> sys.stderr, data
-      if cor == "NA_":
-        exit()
+      #if cor == "NA_":
+      #  exit()
     pass
 
 if __name__ == '__main__':

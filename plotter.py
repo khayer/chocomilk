@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-def plot_my_data(data, x_values,true_n,name):
+def plot_my_data(data, x_values,true_n,name,timestamp):
     k = len(x_values)
     #print >> sys.stderr, k
     fig = plt.figure(num=None, figsize=(k/3, 5), dpi=100, facecolor='w', edgecolor='k')
@@ -55,6 +55,11 @@ def plot_my_data(data, x_values,true_n,name):
                     plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
                                                 horizontalalignment='center',
                                                 verticalalignment='center')
+                elif col == true_n+1 or col == true_n-1:
+                    plt.fill_between(x1, y1, y2=y2, color='orange')
+                    plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
+                                                horizontalalignment='center',
+                                                verticalalignment='center')
                 else:
                     plt.fill_between(x1, y1, y2=y2, color='red')
                     plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
@@ -83,7 +88,7 @@ def plot_my_data(data, x_values,true_n,name):
     plt.xticks(np.arange(len(x_values)), x_values,rotation='vertical')
     ax.set_ylim(-0.5,4.5)
     ax.set_xlim(-0.5,len(x_values)+0.5)
-    plt.title(name)
+    plt.title(name + str(timestamp))
     #fig = plt.figure(figsize=(4, 5))
     plt.savefig(name + ".png")
 
