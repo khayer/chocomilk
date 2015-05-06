@@ -80,7 +80,10 @@ def main():
         i = i +1
       #t.run()
       x =np.around(x,2)
-      plotter.plot_my_data(data,x,correct_n,"{0}_{1}trial".format(num_trial, cor),sorted(subset)[0])
+      if num_trial < 10 :
+        plotter.plot_my_data(data,x,correct_n,"0{0}_{1}trial".format(num_trial, cor),sorted(subset)[0])
+      else:
+        plotter.plot_my_data(data,x,correct_n,"{0}_{1}trial".format(num_trial, cor),sorted(subset)[0])
       print >> sys.stderr, x
       print >> sys.stderr, data
       #if cor == "NA_":

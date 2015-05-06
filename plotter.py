@@ -18,11 +18,13 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
             x1 = [x, x+1]
             y1 = np.array([y, y]) - 0.5
             y2 = y1+1
+            # LAMP
             if y == 4 and col != 0 :
                 plt.fill_between(x1, y1, y2=y2, color='yellow')
                 plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
                                             horizontalalignment='center',
                                             verticalalignment='center')
+            # LIGHT
             if y == 3 and col == 1 :
                 plt.fill_between(x1, y1, y2=y2, color='red')
                 plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "H",
