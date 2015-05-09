@@ -13,16 +13,18 @@ def main():
     print >> sys.stderr, r.events["Output On Event"]["HouseLight #1"][0]
     print >> sys.stderr, ("Num of trials: %s" % len(r.events["Condition Event"]["Start Trial"]))
     print >> sys.stderr, ("Num of trials2: %s" % len(r.events["Output On Event"]["TrayLight #1"]))
+    print >> sys.stderr, ("Num of trials3: %s" % len(r.events["Input Transition On Event"]["TrayClose #1"]))
     print >> sys.stderr, sorted(r.events_by_time.keys())
 
+
     #print >> sys.stderr, r.events_by_time[1455.159]
-    for num_trial in range(0,len(r.events["Condition Event"]["Start Trial"])-1):
+    for num_trial in range(0,len(r.events["Condition Event"]["Start ITI"])-1):
       print >> sys.stderr, num_trial
-      first_trial = r.events["Condition Event"]["Start Trial"][num_trial]
-      if len(r.events["Condition Event"]["Start Trial"])-1 == num_trial:
+      first_trial = r.events["Condition Event"]["Start ITI"][num_trial]
+      if len(r.events["Condition Event"]["Start ITI"])-1 == num_trial:
         end_first_trial = sorted(r.events_by_time.keys())
       else:
-        end_first_trial = r.events["Condition Event"]["Start Trial"][num_trial+1]
+        end_first_trial = r.events["Condition Event"]["Start ITI"][num_trial+1]
       subset = []
       for time in r.events_by_time.keys():
         if time >= first_trial and time < end_first_trial:

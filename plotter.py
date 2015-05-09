@@ -93,6 +93,7 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
     plt.title(name + str(timestamp))
     #fig = plt.figure(figsize=(4, 5))
     plt.savefig(name + ".png")
+    plt.close('all')
 
 def main():
     data = [[1, 1, 0, 1, 0,1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
