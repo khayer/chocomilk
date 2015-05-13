@@ -95,6 +95,36 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
     plt.savefig(name + ".png")
     plt.close('all')
 
+def plot_bar_graph(my_hash):
+    x = []
+    y = []
+    for key, value in my_hash.items():
+        x.append(key)
+        if value[2] == None:
+            y.append(0)
+        else:
+            y.append(value[2])
+    plt.bar(x,y, align='center')
+    ind = range(1,10)
+    plt.xticks(ind, x)
+    plt.title("Average response time")
+    plt.savefig("bar" + ".png")
+
+def plot_bar_graph2(my_hash):
+    x = []
+    y = []
+    for key, value in my_hash.items():
+        x.append(key)
+        if value[0] == None:
+            y.append(0)
+        else:
+            y.append(value[0])
+    plt.bar(x,y, align='center')
+    ind = range(1,10)
+    plt.xticks(ind, x)
+    plt.title("Times visited")
+    plt.savefig("bar_visited" + ".png")
+
 def main():
     data = [[1, 1, 0, 1, 0,1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
             [0, 0, 2, 0, 0,0, 0, 2, 2, 0, 0, 0, 0, 0, 0],
