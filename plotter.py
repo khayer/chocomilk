@@ -100,15 +100,30 @@ def plot_bar_graph(my_hash):
     y = []
     for key, value in my_hash.items():
         x.append(key)
-        if value[2] == None:
+        if value[3] == None:
             y.append(0)
         else:
-            y.append(value[2])
+            y.append(value[3])
     plt.bar(x,y, align='center')
     ind = range(1,10)
     plt.xticks(ind, x)
     plt.title("Average response time")
     plt.savefig("bar" + ".png")
+
+def plot_bar_graph3(my_hash):
+    x = []
+    y = []
+    for key, value in my_hash.items():
+        x.append(key)
+        if value[2] == None:
+            y.append(2)
+        else:
+            y.append(value[2])
+    plt.bar(x,y, align='center')
+    ind = range(1,10)
+    plt.xticks(ind, x)
+    plt.title("Times visited (all)")
+    plt.savefig("bar_visited_all" + ".png")
 
 def plot_bar_graph2(my_hash):
     x = []

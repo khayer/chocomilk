@@ -20,15 +20,15 @@ def main():
     #exit(0)
 
     interactions_response_time = {
-      1 : [0,0.0,None],
-      2 : [0,0.0,None],
-      3 : [0,0.0,None],
-      4 : [0,0.0,None],
-      5 : [0,0.0,None],
-      6 : [0,0.0,None],
-      7 : [0,0.0,None],
-      8 : [0,0.0,None],
-      9 : [0,0.0,None]
+      1 : [0,0.0,0,None],
+      2 : [0,0.0,0,None],
+      3 : [0,0.0,0,None],
+      4 : [0,0.0,0,None],
+      5 : [0,0.0,0,None],
+      6 : [0,0.0,0,None],
+      7 : [0,0.0,0,None],
+      8 : [0,0.0,0,None],
+      9 : [0,0.0,0,None]
     }
 
     l = 0
@@ -38,15 +38,14 @@ def main():
     while num_trial < len(r.events["Input Transition On Event"]["TrayClose #1"])-1 :
       print >> sys.stderr, l
       first_trial = r.events["Input Transition On Event"]["TrayClose #1"][num_trial]
+      while (not len(r.events["Input Transition On Event"]["TrayClose #1"])-1 == num_trial) and (r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]] == 5 or r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]] == 4 or r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]] == 7):
+          num_trial += 1
       if len(r.events["Input Transition On Event"]["TrayClose #1"])-1 == num_trial:
         end_first_trial = sorted(r.events_by_time.keys())
         print >> sys.stderr, "THIS"
       else:
-        print >> sys.stderr, "THAT"
-        print >> sys.stderr, r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]]
-        while (r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]] == 5 or r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]] == 4):
-          num_trial += 1
-          print >> sys.stderr, "THATIIII"
+        #print >> sys.stderr, "THAT"
+        #print >> sys.stderr, r.group[r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]]
         end_first_trial = r.events["Input Transition On Event"]["TrayClose #1"][num_trial+1]
       subset = []
       for time in r.events_by_time.keys():
@@ -108,7 +107,7 @@ def main():
           p = re.compile('^Hole')
           if p.match(e[1]) and e[0] == "Input Transition On Event":
             data[0,i] = n
-
+            interactions_response_time[n][2] += 1
             print >> sys.stderr, lamp
             if lamp == 0:
               cor = "Premature_Response_"
@@ -124,6 +123,8 @@ def main():
       x =np.around(x,5)
 
       if l < 10 :
+        plotter.plot_my_data(data,x,correct_n,"00{0}_{1}trial".format(l, cor),sorted(subset)[0])
+      elif l< 100:
         plotter.plot_my_data(data,x,correct_n,"0{0}_{1}trial".format(l, cor),sorted(subset)[0])
       else:
         plotter.plot_my_data(data,x,correct_n,"{0}_{1}trial".format(l, cor),sorted(subset)[0])
@@ -137,14 +138,15 @@ def main():
     print >> sys.stdout, ("hole\tnum\ttotal\taverage")
     for key, value in interactions_response_time.items():
       if not value[0] == 0:
-        interactions_response_time[key][2] = value[1]/value[0]
-      if not value[2] == None:
-        print >> sys.stdout, ("%i\t%i\t%f\t%f" % (key, value[0], value[1],interactions_response_time[key][2] ))
+        interactions_response_time[key][3] = value[1]/value[0]
+      if not value[3] == None:
+        print >> sys.stdout, ("%i\t%i\t%f\t%i\t%f" % (key, value[0], value[1], value[2], interactions_response_time[key][3] ))
       else:
-        print >> sys.stdout, ("%i\t%i\t%f\tNaN" % (key, value[0], value[1] ))
+        print >> sys.stdout, ("%i\t%i\t%f\t%i\tNaN" % (key, value[0], value[1] ,value[2]))
     print >> sys.stderr, interactions_response_time
     plotter.plot_bar_graph(interactions_response_time)
     plotter.plot_bar_graph2(interactions_response_time)
+    plotter.plot_bar_graph3(interactions_response_time)
     pass
 
 if __name__ == '__main__':
