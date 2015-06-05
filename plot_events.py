@@ -4,6 +4,109 @@ import numpy as np
 import re
 import plotter
 
+def summarize_results(data,x_values,true_n,summary):
+    print >> sys.stderr, "NOW HERE!!!"
+    print >> sys.stderr, data
+    start = 0.0
+    end = 10.0
+    mid = 5.0
+    time_correct = 0.0
+    lamp = False
+    k = 1
+    for y, row in enumerate(data):
+        for x, col in enumerate(row):
+            if x_values[x] < end:
+              print >> sys.stderr, ("Y: %i, row: %i" % (y,x))
+              print >> sys.stderr, row
+              print >> sys.stderr, col
+              #exit(1)
+              print >> sys.stderr, y
+              #x1 = [x, x+1]
+              #y1 = np.array([y, y]) - 0.5
+              #y2 = y1+1
+              # LAMP
+              if y == 4 and col != 0 :
+                  k = 0
+                  lamp = True
+                  mid = x_values[x]
+                  #plt.fill_between(x1, y1, y2=y2, color='yellow')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              # LIGHT
+              if y == 3 and col == 1 :
+                  k = 0
+                  #plt.fill_between(x1, y1, y2=y2, color='red')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "H",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              if y == 3 and col == 2 :
+                  k = 0
+                  #plt.fill_between(x1, y1, y2=y2, color='grey')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "T",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              if y == 2 and col == 1 :
+                  k = 0
+                  #plt.fill_between(x1, y1, y2=y2, color='grey')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "F",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              if y == 2 and col == 2 :
+                  k = 0
+                  #plt.fill_between(x1, y1, y2=y2, color='grey')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "B",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              if y == 1 and col == 1 :
+                  if not lamp:
+                    start = x_values[x]
+                    end = x_values[x]+ 10.0
+                  #plt.fill_between(x1, y1, y2=y2, color='grey')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "C",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+              if y == 0 and col != 0 and col < 10:
+                  if col == true_n:
+                      time_correct = x_values[x]
+                      #plt.fill_between(x1, y1, y2=y2, color='green')
+                      #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
+                      #                            horizontalalignment='center',
+                      #                            verticalalignment='center')
+                  elif col == true_n+1 or col == true_n-1:
+                      k = 0
+                      #plt.fill_between(x1, y1, y2=y2, color='orange')
+                      #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
+                      #                            horizontalalignment='center',
+                      #                            verticalalignment='center')
+                  else:
+                      k = 0
+                      #plt.fill_between(x1, y1, y2=y2, color='red')
+                      #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), int(col),
+                      #                            horizontalalignment='center',
+                      #                            verticalalignment='center')
+
+              if y == 0 and col == 10:
+                  k=0
+                  #plt.fill_between(x1, y1, y2=y2, color='grey')
+                  #plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "T",
+                  #                            horizontalalignment='center',
+                  #                            verticalalignment='center')
+            else:
+              break
+    print >> sys.stderr, int((start - start) * 5)
+    print >> sys.stderr, int((end - start) * 5)
+    print >> sys.stderr, int((time_correct - mid + 5.0) * 5)
+    print >> sys.stderr, x_values
+    #exit(1)
+    if not int((time_correct - mid + 5.0) * 5) in summary:
+      summary[int((time_correct - mid + 5.0) * 5)] = 0
+    summary[int((time_correct - mid + 5.0)*5)] = summary[int((time_correct - mid + 5.0) * 5)]+1
+
+    print >> sys.stderr, summary
+    #exit(1)
+    return summary
+
 def main():
     """Main entry point for the script."""
     print >> sys.stderr, sys.argv
@@ -30,6 +133,8 @@ def main():
       8 : [0,0.0,0,None],
       9 : [0,0.0,0,None]
     }
+
+    summary = {}
 
     l = 0
     #print >> sys.stderr, r.events_by_time[1455.159]
@@ -132,6 +237,8 @@ def main():
       num_trial += 1
       print >> sys.stderr, x
       print >> sys.stderr, data
+      if cor == "Correct_Response_":
+        summary = summarize_results(data,x,correct_n,summary)
       #if l == 44:
       #  exit()
       #exit(1)
@@ -147,6 +254,11 @@ def main():
     plotter.plot_bar_graph(interactions_response_time)
     plotter.plot_bar_graph2(interactions_response_time)
     plotter.plot_bar_graph3(interactions_response_time)
+    print >> sys.stdout, ("time\tcorrect")
+    print >> sys.stderr, summary
+    for key in summary:
+        print >> sys.stdout, ("%f\t%i" % (key/5.0, summary[key]))
+    plotter.plot_correct_reponses(summary)
     pass
 
 if __name__ == '__main__':
