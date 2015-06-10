@@ -109,6 +109,7 @@ def plot_bar_graph(my_hash):
     plt.xticks(ind, x)
     plt.title("Average response time")
     plt.savefig("bar" + ".png")
+    plt.close('all')
 
 #def drange(start, stop, step):
 #    r = start
@@ -131,6 +132,7 @@ def plot_bar_graph3(my_hash):
     plt.xticks(ind, x)
     plt.title("Times visited (all)")
     plt.savefig("bar_visited_all" + ".png")
+    plt.close('all')
 
 def plot_bar_graph2(my_hash):
     x = []
@@ -146,6 +148,7 @@ def plot_bar_graph2(my_hash):
     plt.xticks(ind, x)
     plt.title("Times visited")
     plt.savefig("bar_visited" + ".png")
+    plt.close('all')
 
 def plot_correct_reponses(my_hash):
     x = np.arange(0,10,10.0/50.0)
@@ -161,6 +164,7 @@ def plot_correct_reponses(my_hash):
     plt.title("Correct responses")
     plt.xticks(range(0,10))
     plt.savefig("correct_reponses" + ".png")
+    plt.close('all')
 
 
 def main():
