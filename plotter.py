@@ -151,14 +151,15 @@ def plot_correct_reponses(my_hash):
     x = np.arange(0,10,10.0/50.0)
     y = []
     x_new = []
-    for x1 in x.tolist:
-        x_new.append(x1)
-        if int(x1*5) in my_hash:
-            y.append(my_hash[int(x1*5)])
+    for x1 in range(0,50):
+        x_new.append(round(x[x1],2))
+        if int(x1) in my_hash:
+            y.append(my_hash[int(x1)])
         else:
             y.append(0)
-    plt.bar(x_new,y, align='center')
+    plt.bar(x_new,y, 0.2 )#, align='center',)
     plt.title("Correct responses")
+    plt.xticks(range(0,10))
     plt.savefig("correct_reponses" + ".png")
 
 
