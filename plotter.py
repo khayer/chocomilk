@@ -167,6 +167,70 @@ def plot_correct_reponses(my_hash):
     plt.close('all')
 
 
+def plot_pre_mature(my_hash):
+    x = np.arange(0,10,10.0/50.0)
+    y = []
+    x_new = []
+    for x1 in range(0,50):
+        x_new.append(round(x[x1],2))
+        if int(x1) in my_hash:
+            y.append(my_hash[int(x1)])
+        else:
+            y.append(0)
+    plt.bar(x_new,y, 0.2 )#, align='center',)
+    plt.title("Premature responses")
+    plt.xticks(range(0,10))
+    plt.savefig("pre_mature" + ".png")
+    plt.close('all')
+
+def plot_incorrect(my_hash):
+    x = np.arange(0,10,10.0/50.0)
+    y = []
+    x_new = []
+    for x1 in range(0,50):
+        x_new.append(round(x[x1],2))
+        if int(x1) in my_hash:
+            y.append(my_hash[int(x1)])
+        else:
+            y.append(0)
+    plt.bar(x_new,y, 0.2 )#, align='center',)
+    plt.title("Incorrect responses")
+    plt.xticks(range(0,10))
+    plt.savefig("incorrect" + ".png")
+    plt.close('all')
+
+def plot_all_responses(correct, premature, incorrect):
+    x = np.arange(0,10,10.0/50.0)
+    y_correct = []
+    x_new = []
+    for x1 in range(0,50):
+        x_new.append(round(x[x1],2))
+        if int(x1) in correct:
+            y_correct.append(correct[int(x1)])
+        else:
+            y_correct.append(0)
+    plt.bar(x_new,y_correct, 0.2 , color="green")#, align='center',)
+    #plt.title("Incorrect responses")
+    y_premature = []
+    for x1 in range(0,50):
+        #x_new.append(round(x[x1],2))
+        if int(x1) in premature:
+            y_premature.append(premature[int(x1)])
+        else:
+            y_premature.append(0)
+    plt.bar(x_new,y_premature, 0.2 , color="blue")
+    y_incorrect = []
+    for x1 in range(0,50):
+        #x_new.append(round(x[x1],2))
+        if int(x1) in incorrect:
+            y_incorrect.append(-incorrect[int(x1)])
+        else:
+            y_incorrect.append(0)
+    plt.bar(x_new,y_incorrect, 0.2 , color="red")
+    plt.xticks(range(0,11))
+    plt.savefig("all_together" + ".png")
+    plt.close('all')
+
 def main():
     data = [[1, 1, 0, 1, 0,1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
             [0, 0, 2, 0, 0,0, 0, 2, 2, 0, 0, 0, 0, 0, 0],
