@@ -365,15 +365,15 @@ def main():
 	print >> sys.stderr, sorted(r.group)
 	#exit(0)
 	interactions_response_time = {
-		1 : [0,0.0,0,None],
-		2 : [0,0.0,0,None],
-		3 : [0,0.0,0,None],
-		4 : [0,0.0,0,None],
-		5 : [0,0.0,0,None],
-		6 : [0,0.0,0,None],
-		7 : [0,0.0,0,None],
-		8 : [0,0.0,0,None],
-		9 : [0,0.0,0,None]
+		1 : [0,0.0,0,None,[],0.0],
+		2 : [0,0.0,0,None,[],0.0],
+		3 : [0,0.0,0,None,[],0.0],
+		4 : [0,0.0,0,None,[],0.0],
+		5 : [0,0.0,0,None,[],0.0],
+		6 : [0,0.0,0,None,[],0.0],
+		7 : [0,0.0,0,None,[],0.0],
+		8 : [0,0.0,0,None,[],0.0],
+		9 : [0,0.0,0,None,[],0.0]
 	}
 	summary = {}
 	summary_pre_mature = {}
@@ -408,6 +408,7 @@ def main():
 		cor = "Omitted_"
 		lamp = 0
 		start_time_lamp = 0
+		house_lamp = 0
 		counted = 0
 		for k in sorted(subset):
 			#print >> sys.stderr, ("K: %f" % k)
@@ -433,6 +434,7 @@ def main():
 				# LIGHTS
 				if e[1] == "HouseLight #1" and e[0] =="Output On Event":
 					data[3,i] = 1
+					house_lamp = 1
 				if e[1] == "TrayLight #1" and e[0] =="Output On Event":
 					data[3,i] = 2
 				# BEAM
@@ -451,15 +453,17 @@ def main():
 					#print >> sys.stderr, lamp
 					if lamp == 0:
 						cor = "Premature_Response_"
-					elif counted == 0:
+					elif counted == 0 and house_lamp == 0: # omitted trial if house_lamp == 1
 						interactions_response_time[n][0] += 1
 						interactions_response_time[n][1] += k - start_time_lamp
+						interactions_response_time[n][4].append(k - start_time_lamp)
 						counted = 1
 				if e[1] == "Tray #1" and e[0] == "Input Transition On Event":
 					data[0,i] = 10
 			i = i +1
 		#t.run()
 		x =np.around(x,5)
+		#print >> sys.stderr, data
 		if l < 10 :
 			plotter.plot_my_data(data,x,correct_n,"00{0}_{1}trial".format(l, cor),sorted(subset)[0])
 		elif l< 100:
@@ -479,14 +483,16 @@ def main():
 		#if l == 44:
 		#  exit()
 		#exit(1)
-	print >> sys.stdout, ("hole\tnum\ttotal\taverage")
+	print >> sys.stdout, ("hole\tnum\ttotal\tall_pokes\tstd\taverage")
 	for key, value in interactions_response_time.items():
 		if not value[0] == 0:
 			interactions_response_time[key][3] = value[1]/value[0]
+			interactions_response_time[key][5] = np.std(value[4],ddof=1)
+			#print >> sys.stdout, value[4]
 		if not value[3] == None:
-			print >> sys.stdout, ("%i\t%i\t%f\t%i\t%f" % (key, value[0], value[1], value[2], interactions_response_time[key][3] ))
+			print >> sys.stdout, ("%i\t%i\t%f\t%i\t%f\t%f" % (key, value[0], value[1], value[2],value[5], interactions_response_time[key][3] ))
 		else:
-			print >> sys.stdout, ("%i\t%i\t%f\t%i\tNaN" % (key, value[0], value[1] ,value[2]))
+			print >> sys.stdout, ("%i\t%i\t%f\t%i\tNaN\tNaN" % (key, value[0], value[1] ,value[2]))
 	print >> sys.stderr, interactions_response_time
 	plotter.plot_bar_graph(interactions_response_time)
 	plotter.plot_bar_graph2(interactions_response_time)

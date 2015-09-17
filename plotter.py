@@ -69,7 +69,11 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
                                                 verticalalignment='center')
 
             if y == 0 and col == 10:
-                plt.fill_between(x1, y1, y2=y2, color='grey')
+                try:
+                    plt.fill_between(x1, y1, y2=y2, color='grey')
+                except Exception, e:
+                    return
+
                 plt.text(avg(x1[0], x1[1]), avg(y1[0], y2[0]), "T",
                                             horizontalalignment='center',
                                             verticalalignment='center')
@@ -98,13 +102,16 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
 def plot_bar_graph(my_hash):
     x = []
     y = []
+    menStd = []
     for key, value in my_hash.items():
         x.append(key)
         if value[3] == None:
             y.append(0)
+            menStd.append(0)
         else:
             y.append(value[3])
-    plt.bar(x,y, align='center')
+            menStd.append(value[5])
+    plt.bar(x,y, align='center',yerr=menStd, color='r')
     ind = range(1,10)
     plt.xticks(ind, x)
     plt.title("Average response time")
