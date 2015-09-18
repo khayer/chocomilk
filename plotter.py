@@ -94,7 +94,8 @@ def plot_my_data(data, x_values,true_n,name,timestamp):
     plt.xticks(np.arange(len(x_values)), x_values,rotation='vertical')
     ax.set_ylim(-0.5,4.5)
     ax.set_xlim(-0.5,len(x_values)+0.5)
-    plt.title(name + str(timestamp))
+    newstr = name.replace("x", "")
+    plt.title(newstr + str(timestamp))
     #fig = plt.figure(figsize=(4, 5))
     plt.savefig(name + ".png")
     plt.close('all')
@@ -206,35 +207,47 @@ def plot_incorrect(my_hash):
     plt.savefig("incorrect" + ".png")
     plt.close('all')
 
-def plot_all_responses(correct, premature, incorrect):
-    x = np.arange(0,10,10.0/50.0)
+def plot_all_responses(correct, premature, incorrect, omitted):
+    x = np.arange(0,18,18/90.0)
     y_correct = []
     x_new = []
-    for x1 in range(0,50):
+    for x1 in range(0,90):
         x_new.append(round(x[x1],2))
         if int(x1) in correct:
             y_correct.append(correct[int(x1)])
         else:
             y_correct.append(0)
-    plt.bar(x_new,y_correct, 0.2 , color="green")#, align='center',)
+    plt.bar(x_new,y_correct, 0.2 , color="green", label = "Correct")#, align='center',)
     #plt.title("Incorrect responses")
     y_premature = []
-    for x1 in range(0,50):
+    for x1 in range(0,90):
         #x_new.append(round(x[x1],2))
         if int(x1) in premature:
             y_premature.append(premature[int(x1)])
         else:
             y_premature.append(0)
-    plt.bar(x_new,y_premature, 0.2 , color="blue")
+    plt.bar(x_new,y_premature, 0.2 , color="blue", label = "Premature")
     y_incorrect = []
-    for x1 in range(0,50):
+    for x1 in range(0,90):
         #x_new.append(round(x[x1],2))
         if int(x1) in incorrect:
             y_incorrect.append(-incorrect[int(x1)])
         else:
             y_incorrect.append(0)
-    plt.bar(x_new,y_incorrect, 0.2 , color="red")
-    plt.xticks(range(0,11))
+    plt.bar(x_new,y_incorrect, 0.2 , color="red", label = "Incorrect")
+    y_omitted = []
+    for x1 in range(0,90):
+        #x_new.append(round(x[x1],2))
+        if int(x1) == 85:
+            y_omitted.append(omitted)
+        else:
+            y_omitted.append(0)
+    plt.bar(x_new,y_omitted, 0.2 , color="black", label = "Omitted")
+    #vert line
+    plt.axvline(x=5.,color='c',ls='dashed')
+    plt.axvline(x=17.,color='c',ls='dashed')
+    plt.xticks(range(0,18))
+    plt.legend(loc = 2, fontsize = "small")
     plt.savefig("all_together" + ".png")
     plt.close('all')
 

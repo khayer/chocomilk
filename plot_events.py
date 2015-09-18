@@ -378,6 +378,7 @@ def main():
 	summary = {}
 	summary_pre_mature = {}
 	summary_incorrect = {}
+	summary_omitted = 0
 	l = 0
 	#print >> sys.stderr, r.events_by_time[1455.159]
 	num_trial = 0
@@ -465,11 +466,11 @@ def main():
 		x =np.around(x,5)
 		#print >> sys.stderr, data
 		if l < 10 :
-			plotter.plot_my_data(data,x,correct_n,"00{0}_{1}trial".format(l, cor),sorted(subset)[0])
+			plotter.plot_my_data(data,x,correct_n,"x00{0}_{1}trial".format(l, cor),sorted(subset)[0])
 		elif l< 100:
-			plotter.plot_my_data(data,x,correct_n,"0{0}_{1}trial".format(l, cor),sorted(subset)[0])
+			plotter.plot_my_data(data,x,correct_n,"x0{0}_{1}trial".format(l, cor),sorted(subset)[0])
 		else:
-			plotter.plot_my_data(data,x,correct_n,"{0}_{1}trial".format(l, cor),sorted(subset)[0])
+			plotter.plot_my_data(data,x,correct_n,"x{0}_{1}trial".format(l, cor),sorted(subset)[0])
 		l += 1
 		num_trial += 1
 		#print >> sys.stderr, x
@@ -480,6 +481,8 @@ def main():
 			summary_pre_mature = pre_mature_summarize_results(data,x,summary_pre_mature)
 		if cor == "Incorrect_Response_":
 			summary_incorrect = incorrect_summarize_results(data,x,correct_n,summary_incorrect)
+		if cor == "Omitted_":
+			summary_omitted += 1
 		#if l == 44:
 		#  exit()
 		#exit(1)
@@ -498,17 +501,20 @@ def main():
 	plotter.plot_bar_graph2(interactions_response_time)
 	plotter.plot_bar_graph3(interactions_response_time)
 	print >> sys.stdout, ("time\tcorrect")
+	print >> sys.stderr, ("summary:")
 	print >> sys.stderr, summary
 	print >> sys.stderr, ("summary_pre_mature:")
 	print >> sys.stderr, summary_pre_mature
 	print >> sys.stderr, ("summary_incorrect:")
 	print >> sys.stderr, summary_incorrect
+	print >> sys.stderr, ("summary_omitted:")
+	print >> sys.stderr, summary_omitted
 	for key in summary:
 			print >> sys.stdout, ("%f\t%i" % (key/5.0, summary[key]))
-	plotter.plot_correct_reponses(summary)
-	plotter.plot_pre_mature(summary_pre_mature)
-	plotter.plot_incorrect(summary_incorrect)
-	plotter.plot_all_responses(summary, summary_pre_mature, summary_incorrect)
+	#plotter.plot_correct_reponses(summary)
+	#plotter.plot_pre_mature(summary_pre_mature)
+	#plotter.plot_incorrect(summary_incorrect)
+	plotter.plot_all_responses(summary, summary_pre_mature, summary_incorrect,summary_omitted)
 	pass
 
 if __name__ == '__main__':

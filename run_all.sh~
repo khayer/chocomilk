@@ -1,0 +1,11 @@
+for k in LP01-3
+do
+    echo $k
+    python plot_events.py ~/Dropbox/5c-MatDiet-SchA-Katherina/SCH-A-$k.csv > table.txt
+    convert *.png $k.pdf
+    mkdir ../$k
+    cp $k.pdf ../$k
+    mv table.txt ../$k
+    mv $k.pdf /Users/hayer/Google\ Drive/Nicola/SC_control_animals/with_error_bars/
+    rm *png
+done
